@@ -80,6 +80,20 @@ function layoutDiv() {
     `
   }
 
+  el += `
+    <section id="revision-history">
+      <div class="header">
+        <span>修订历史</span>
+        <button class="revision-history-toggle" aria-label="折叠/展开修订历史">▶</button>
+      </div>
+      <div class="revision-history-count"></div>
+      <div class="body collapsed">
+        <div class="revision-history-loading">正在加载修订历史...</div>
+        <div class="revision-history-list"></div>
+      </div>
+    </section>
+  `;
+
   if (contributors) {
     el += contributors
   }
