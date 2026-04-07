@@ -1,0 +1,70 @@
+#revision-history
+  margin-top 1.5rem
+  &:first-child
+    margin-top 0
+  .header
+    display flex
+    justify-content space-between
+    align-items center
+    font-weight 500
+    font-size $fsh5
+    span
+      color inherit
+    .revision-history-toggle
+      background none
+      border none
+      color var(--text-secondary)
+      cursor pointer
+      font-size 0.8rem
+      padding 0.25rem
+      transition transform 0.2s ease
+      &:hover
+        color var(--text)
+  .body
+    &.collapsed
+      display none
+    .revision-history-loading,
+    .revision-history-empty,
+    .revision-history-note
+      color var(--text-secondary)
+      font-size $fsp2
+      line-height 1.6
+      margin: 0.5rem 0
+    .revision-history-list-items
+      display grid
+      gap 0.75rem
+      margin-top 0.5rem
+      list-style none
+      padding 0
+      .revision-history-item
+        border 1px solid var(--border-color)
+        border-radius 0.8rem
+        padding 0.9rem
+        background var(--surface)
+        .revision-history-meta
+          display flex
+          justify-content space-between
+          align-items center
+          .revision-history-title
+            font-size 0.95rem
+            font-weight 600
+            flex 1
+            overflow hidden
+            text-overflow ellipsis
+            white-space nowrap
+          .revision-history-hash
+            font-size 0.85rem
+            font-family var(--font-mono)
+            a
+              color var(--text-secondary)
+              text-decoration none
+              &:hover
+                text-decoration underline
+        .revision-history-info
+          font-size 0.85rem
+          color var(--text-secondary)
+  .revision-history-count
+    margin: 0.5rem 0
+    font-size $fsp2
+    color var(--text-p2)
+    text-align left
