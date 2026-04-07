@@ -299,6 +299,7 @@ stellar.initPage = function () {
   init.sidebar();
   init.relativeDate(document.querySelectorAll('#post-meta time'));
   init.registerTabsTag();
+  init.revisionHistory();
   
   // Reinitialize comments after PJAX navigation
   if (stellar.initComments) {
@@ -311,6 +312,122 @@ stellar.initPage = function () {
 };
 
 // Initial page load
+init.revisionHistory = function () {
+  const revisionSection = document.getElementById('revision-history');
+  if (!revisionSection) {
+    return;
+  }
+
+  const loadingEl = revisionSection.querySelector('.revision-history-loading');
+  const listEl = revisionSection.querySelector('.revision-history-list');
+  if (!loadingEl || !listEl) {
+    return;
+  }
+
+  // Add toggle functionality
+  const toggleBtn = revisionSection.querySelector('.revision-history-toggle');
+  const bodyEl = revisionSection.querySelector('.body');
+  if (toggleBtn && bodyEl) {
+    toggleBtn.addEventListener('click', () => {
+      const isCollapsed = bodyEl.classList.toggle('collapsed');
+      toggleBtn.textContent = isCollapsed ? '▶' : '▼';
+      toggleBtn.setAttribute('aria-expanded', !isCollapsed);
+    });
+  }
+
+  function normalizePath(pathname) {
+    const root = ctx.root || '/';
+    let relative = pathname;
+    if (relative.startsWith(root)) {
+      relative = relative.slice(root.length);
+    }
+    if (relative.endsWith('/')) {
+      relative += 'index';
+    } else if (relative.endsWith('.html')) {
+      relative = relative.slice(0, -5);
+    }
+    if (relative.startsWith('/')) {
+      relative = relative.slice(1);
+    }
+    return relative;
+  }
+
+  function getRevisionJsonUrl() {
+    const pathname = window.location.pathname;
+    const relativePath = normalizePath(pathname);
+    const root = ctx.root || '/';
+    return `${root}json/revisions/${relativePath}.json`;
+  }
+
+  function renderHistory(data) {
+    const revisions = data.revisions || [];
+    const countEl = revisionSection.querySelector('.revision-history-count');
+    const toggleBtn = revisionSection.querySelector('.revision-history-toggle');
+    const bodyEl = revisionSection.querySelector('.body');
+
+    if (revisions.length === 0) {
+      if (countEl) countEl.textContent = '此页面暂无修订历史';
+      if (toggleBtn) toggleBtn.style.display = 'none';
+      if (bodyEl) bodyEl.style.display = 'none';
+      loadingEl.remove();
+      return;
+    }
+
+    if (countEl) countEl.textContent = `此页面经过 ${revisions.length} 次修订`;
+    if (toggleBtn) toggleBtn.style.display = '';
+    if (bodyEl) bodyEl.style.display = '';
+
+    loadingEl.remove();
+    const list = document.createElement('ul');
+    list.className = 'revision-history-list-items';
+
+    revisions.forEach((revision) => {
+      const item = document.createElement('li');
+      item.className = 'revision-history-item';
+      const shortHash = revision.hash.substring(0, 7);
+      const commitUrl = `https://github.com/SheepYhangCN/sheepyhangcn.github.io/commit/${revision.hash}`;
+      const tooltip = revision.description || revision.subject || '';
+      const escapedTooltip = tooltip
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+      item.innerHTML = `
+        <div class="revision-history-meta">
+          <div class="revision-history-title" title="${escapedTooltip}">${revision.subject}</div>
+          <div class="revision-history-hash">
+            <a href="${commitUrl}" target="_blank" rel="noopener noreferrer">${shortHash}</a>
+          </div>
+        </div>
+        <div class="revision-history-info">${revision.author} • ${new Date(revision.date).toLocaleString()}</div>
+      `;
+      list.appendChild(item);
+    });
+
+    listEl.appendChild(list);
+  }
+
+  const url = getRevisionJsonUrl();
+  fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('No revision data');
+      }
+      return response.json();
+    })
+    .then(renderHistory)
+    .catch(() => {
+      const countEl = revisionSection.querySelector('.revision-history-count');
+      const toggleBtn = revisionSection.querySelector('.revision-history-toggle');
+      const bodyEl = revisionSection.querySelector('.body');
+      if (countEl) countEl.textContent = '此页面暂无修订历史';
+      if (toggleBtn) toggleBtn.style.display = 'none';
+      if (bodyEl) bodyEl.style.display = 'none';
+      loadingEl.remove();
+    });
+};
+
 stellar.initPage();
 init.canonicalCheck();
 
