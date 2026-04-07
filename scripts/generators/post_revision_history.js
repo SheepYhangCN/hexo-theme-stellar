@@ -82,7 +82,7 @@ hexo.extend.generator.register('post_revision_history', function (locals) {
       return;
     }
 
-    let pathKey = item.path.replace(/\.html$/, '/index.json');
+    let pathKey = item.path.replace(/\.html$/, '.json');
     if (pathKey.startsWith('/')) {
       pathKey = pathKey.slice(1);
     }
