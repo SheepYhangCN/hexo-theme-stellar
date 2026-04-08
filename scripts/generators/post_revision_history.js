@@ -1,5 +1,6 @@
 const { execFileSync } = require('child_process');
 const path = require('path');
+const moment = require('moment');
 
 function getGitLog(repoDir, relativePath) {
   try {
@@ -82,7 +83,7 @@ hexo.extend.generator.register('post_revision_history', function (locals) {
       return;
     }
 
-    let pathKey = item.path.replace(/\.html$/, '.json');
+    let pathKey = item.path.replace(/\/index\.html$/, '.html').replace(/\.html$/, '/index.json');
     if (pathKey.startsWith('/')) {
       pathKey = pathKey.slice(1);
     }
@@ -94,6 +95,8 @@ hexo.extend.generator.register('post_revision_history', function (locals) {
         revisions
       })
     });
+
+    item.updated = moment(revisions[0].date);
   });
 
   return results;
