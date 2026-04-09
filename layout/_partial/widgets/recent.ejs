@@ -29,7 +29,7 @@ function layoutDiv() {
   } else {
     arr = site.posts.filter(function(p) {
       return p.title && p.title.length > 0
-    }).sort('updated', -1)
+    }).sort('date', -1)
   }
   arr = arr.filter(function(p) {
     return p.title?.length > 0
