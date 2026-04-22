@@ -14,18 +14,6 @@ function getGitLog(repoDir, relativePath) {
   }
 }
 
-function getGitFileContent(repoDir, hash, relativePath) {
-  try {
-    const output = execFileSync(
-      `git show "${hash}:${relativePath}" 2>nul`,
-      { cwd: repoDir, encoding: 'utf8', shell: true }
-    );
-    return output.replace(/\r\n/g, '\n');
-  } catch (err) {
-    return null;
-  }
-}
-
 function normalizeSourcePath(baseDir, sourcePath) {
   const absolutePath = path.isAbsolute(sourcePath) ? sourcePath : path.join(baseDir, sourcePath);
   return path.relative(baseDir, absolutePath).split(path.sep).join('/');
@@ -64,18 +52,13 @@ hexo.extend.generator.register('post_revision_history', function (locals) {
       }
       const [hash, author, email, date, subject, ...bodyParts] = parts;
       const description = bodyParts.join('\x1f').trim();
-      const content = getGitFileContent(baseDir, hash, relativePath);
-      if (content == null) {
-        continue;
-      }
       revisions.push({
         hash,
         author,
         email,
         date,
         subject,
-        description,
-        content
+        description
       });
     }
 
