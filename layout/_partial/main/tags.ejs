@@ -1,0 +1,8 @@
+<%# 所属标签 %>
+<% if (page.tags) { %>
+  <div class="tag-list">
+    <% page.tags.forEach((tag) => { %>
+      <a class="tag" href="<%= pretty_url(tag.path) %>"><%= tag.name %></a>
+    <% }) %>
+  </div>
+<% } %>
