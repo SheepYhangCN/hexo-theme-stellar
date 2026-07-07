@@ -1,6 +1,5 @@
 const { execFileSync } = require('child_process');
 const path = require('path');
-const moment = require('moment');
 
 function getGitLog(repoDir, relativePath) {
   try {
@@ -52,11 +51,20 @@ hexo.extend.generator.register('post_revision_history', function (locals) {
       }
       const [hash, author, email, date, subject, ...bodyParts] = parts;
       const description = bodyParts.join('\x1f').trim();
+      const tzMatch = date.match(/([+-])(\d{2}):(\d{2})$/);
+      let timezone = '';
+      if (tzMatch) {
+        const sign = tzMatch[1];
+        const hours = parseInt(tzMatch[2], 10);
+        const minutes = parseInt(tzMatch[3], 10);
+        timezone = minutes === 0 ? `${sign}${hours}` : `${sign}${hours}:${String(minutes).padStart(2, '0')}`;
+      }
       revisions.push({
         hash,
         author,
         email,
         date,
+        timezone,
         subject,
         description
       });
@@ -78,8 +86,6 @@ hexo.extend.generator.register('post_revision_history', function (locals) {
         revisions
       })
     });
-
-    item.updated = moment(revisions[0].date);
   });
 
   return results;
