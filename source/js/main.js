@@ -359,6 +359,56 @@ init.revisionHistory = function () {
     return `${root}json/revisions/${relativePath}.json`;
   }
 
+  const dateTimeFormatOptions = {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hourCycle: 'h23'
+  };
+
+  const pad = (n) => String(n).padStart(2, '0');
+
+  const localFormatter = new Intl.DateTimeFormat('en-CA', {
+    ...dateTimeFormatOptions,
+    timeZoneName: 'shortOffset'
+  });
+
+  function formatLocalDateTime(date) {
+    try {
+      const parts = localFormatter.formatToParts(date);
+      const get = (type) => parts.find(p => p.type === type)?.value || '';
+      let tzName = get('timeZoneName');
+      if (!tzName) {
+        const offset = -date.getTimezoneOffset();
+        const tzHours = Math.floor(Math.abs(offset) / 60);
+        const tzMinutes = Math.abs(offset) % 60;
+        const tzSign = offset >= 0 ? '+' : '-';
+        tzName = `GMT${tzSign}${tzMinutes === 0 ? tzHours : `${tzHours}:${pad(tzMinutes)}`}`;
+      }
+      return `${get('year')}/${get('month')}/${get('day')}, ${get('hour')}:${get('minute')}:${get('second')} (${tzName})`;
+    } catch (e) {
+      const offset = -date.getTimezoneOffset();
+      const tzHours = Math.floor(Math.abs(offset) / 60);
+      const tzMinutes = Math.abs(offset) % 60;
+      const tzSign = offset >= 0 ? '+' : '-';
+      const tzStr = tzMinutes === 0 ? `${tzHours}` : `${tzHours}:${pad(tzMinutes)}`;
+      return `${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())}, ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())} (GMT${tzSign}${tzStr})`;
+    }
+  }
+
+  function formatDateTimeWithTimezone(date, timezone) {
+    const utc = date.getTime() + date.getTimezoneOffset() * 60000;
+    const offsetMatch = timezone.match(/^([+-])(\d+)(?::(\d+))?$/);
+    if (!offsetMatch) {
+      return formatLocalDateTime(date);
+    }
+    const sign = offsetMatch[1] === '+' ? 1 : -1;
+    const hours = parseInt(offsetMatch[2], 10);
+    const minutes = parseInt(offsetMatch[3] || '0', 10);
+    const offsetMs = sign * (hours * 3600000 + minutes * 60000);
+    const d = new Date(utc + offsetMs);
+    return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())}, ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())} (GMT${timezone})`;
+  }
+
   function renderHistory(data) {
     const revisions = data.revisions || [];
     const countEl = revisionSection.querySelector('.revision-history-count');
@@ -393,6 +443,13 @@ init.revisionHistory = function () {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
+
+      const localDate = new Date(revision.date);
+      const localTimeStr = formatLocalDateTime(localDate);
+      const originalTimeStr = revision.timezone
+        ? formatDateTimeWithTimezone(localDate, revision.timezone)
+        : localTimeStr;
+
       item.innerHTML = `
         <div class="revision-history-meta">
           <div class="revision-history-title" title="${escapedTooltip}">${revision.subject}</div>
@@ -400,7 +457,7 @@ init.revisionHistory = function () {
             <a href="${commitUrl}" target="_blank" rel="noopener noreferrer">${shortHash}</a>
           </div>
         </div>
-        <div class="revision-history-info">${revision.author} • ${new Date(revision.date).toLocaleString()}</div>
+        <div class="revision-history-info">${revision.author} • <time datetime="${revision.date}" title="${originalTimeStr}">${localTimeStr}</time></div>
       `;
       list.appendChild(item);
     });
