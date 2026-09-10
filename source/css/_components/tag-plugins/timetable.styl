@@ -1,0 +1,160 @@
+.timetable
+  overflow: hidden
+
+.timetable-header
+  display: flex
+  justify-content: space-between
+  align-items: baseline
+  margin-bottom: 1rem
+  gap: 1rem
+
+.timetable-week-controls
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: flex-start
+  min-height: 3.2rem
+  gap: 0.25rem
+
+.timetable-week-line
+  display: inline-flex
+  align-items: center
+  gap: 0.35rem
+
+.timetable-current-week
+  display: block
+  min-height: 0.9rem
+  color: var(--text-p2)
+  font-size: 0.72rem
+  line-height: 0.9rem
+
+.timetable-current-week[hidden]
+  visibility: hidden
+
+.timetable-week-controls button
+  border: 1px solid var(--block-border)
+  border-radius: 2px
+  background: var(--block-background)
+  color: var(--text-p2)
+  cursor: pointer
+  line-height: 1
+  padding: 0.25rem 0.45rem
+
+.timetable-week-controls button:disabled
+  cursor: not-allowed
+  opacity: 0.4
+
+.timetable-period-column
+  width: 3.25rem
+
+.timetable-live
+  display: flex
+  flex-wrap: wrap
+  gap: 0.6rem
+  margin: 0 0 0.8rem
+  padding: 0.55rem 0.7rem
+  border-left: 3px solid var(--theme-color)
+  background: var(--block-background)
+  color: var(--text-p2)
+
+.timetable-live-status
+  color: var(--text-p1)
+
+.timetable-live-next
+  white-space: pre-line
+
+.timetable-header label
+  color: var(--text-p2)
+
+.timetable-week
+  border: 1px solid var(--block-border)
+  border-radius: 2px
+  background: var(--block-background)
+  color: var(--text-p1)
+  padding: 0.2rem 0.35rem
+
+.timetable-scroll
+  overflow-x: auto
+
+.timetable table
+  width: 100%
+  min-width: 680px
+  border-collapse: separate
+  border-spacing: 0
+  table-layout: fixed
+  font-size: 0.85rem
+
+.timetable th,
+.timetable td
+  border: 1px solid var(--block-border)
+  padding: 0.45rem
+  vertical-align: top
+
+.timetable thead th
+  background: var(--block-background)
+  text-align: center
+
+.timetable tbody > tr > th
+  width: 3.25rem
+  min-width: 3.25rem
+  padding-left: 0
+  padding-right: 0
+  text-align: center
+  font-weight: 600
+
+.timetable th small
+  display: block
+  margin-top: 0.25rem
+  color: var(--text-p3)
+  font-size: 0.7rem
+  font-weight: 400
+
+.timetable td
+  height: 4rem
+
+.timetable table:not([class]) tbody tr:hover
+  background: transparent
+
+.timetable table:not([class]) tbody td:hover
+  background: var(--block)
+
+.timetable-course
+  border-left: 0
+  border-radius: 2px
+  background: var(--block-background)
+  box-sizing: border-box
+  min-height: 100%
+  padding: 0.8rem 0.45rem 0.35rem
+  margin: -0.45rem -0.45rem -0.45rem
+  position: relative
+
+.timetable-course::before
+  content: ''
+  position: absolute
+  top: 0.5rem
+  bottom: -0.5rem
+  left: 0
+  width: 3px
+  border-radius: 2px
+  background: var(--course-color)
+
+.timetable td.is-current
+  border: 1px solid var(--course-color)
+  position: relative
+  z-index: 1
+
+.timetable-course b,
+.timetable-course small
+  display: block
+
+.timetable-course b
+  color: var(--text-p1)
+  line-height: 1.35
+
+.timetable-course small
+  color: var(--text-p2)
+  font-size: 0.72rem
+  line-height: 1.4
+
+.timetable-course[hidden]
+  display: none

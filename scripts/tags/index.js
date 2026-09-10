@@ -17,6 +17,7 @@ hexo.extend.tag.register('dropdown', require('./lib/dropdown')(hexo), true)
 // data
 hexo.extend.tag.register('users', require('./lib/friends')(hexo))
 hexo.extend.tag.register('friends', require('./lib/friends')(hexo))
+hexo.extend.tag.register('timetable', require('./lib/timetable')(hexo))
 hexo.extend.tag.register('albums', require('./lib/albums')(hexo))
 hexo.extend.tag.register('posters', require('./lib/posters')(hexo))
 hexo.extend.tag.register('sites', require('./lib/sites')(hexo))
