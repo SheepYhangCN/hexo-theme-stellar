@@ -494,6 +494,8 @@ data_services:
     js: /js/services/friends.js
   friends_and_posts:
     js: /js/services/friends_and_posts.js
+  timetable:
+    js: /js/services/timetable.js
   # 列表布局类
   timeline:
     js: /js/services/timeline.js
