@@ -1,6 +1,5 @@
-utils.jq(() => {
-  $(async function () {
-    for (const el of document.querySelectorAll('.ds-timetable')) {
+(async function () {
+  for (const el of document.querySelectorAll('.ds-timetable')) {
       try {
         const response = await fetch(el.dataset.timetableSrc)
         const text = (await response.text()).replace(/^\uFEFF/, '')
@@ -88,5 +87,4 @@ utils.jq(() => {
         el.innerHTML = `<div class="timetable-error">课表加载失败：${String(error.message || error)}</div>`
       }
     }
-  })
-})
+})()
