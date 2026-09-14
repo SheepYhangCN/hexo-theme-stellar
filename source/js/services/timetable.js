@@ -21,7 +21,7 @@
         const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char])
         const normalizeColor = raw => /^#[0-9a-f]{8}$/i.test(raw || '') ? `#${raw.slice(3)}` : (raw || '#6b7280')
         const courseMap = new Map(courses.map(course => [course.id, course]))
-        el.innerHTML = `<div class="timetable-header"><strong>${escapeHtml(meta.tableName || '课表')}</strong><div class="timetable-week-controls"><div class="timetable-week-line"><button class="timetable-week-prev" type="button" aria-label="上一周">&#8592;</button><label>第 <select class="timetable-week" aria-label="选择周次">${Array.from({ length: maxWeek }, (_, index) => `<option value="${index + 1}">${index + 1}</option>`).join('')}</select> 周</label><button class="timetable-week-next" type="button" aria-label="下一周">&#8594;</button></div><span class="timetable-current-week" hidden>当前周</span></div></div><div class="timetable-live" aria-live="polite"><b class="timetable-live-status">正在加载</b><span class="timetable-live-next"></span></div><div class="timetable-scroll"><table><colgroup><col class="timetable-period-column">${days.map(() => '<col>').join('')}</colgroup><thead><tr><th>节次</th>${days.map(day => `<th>${labels[day]}</th>`).join('')}</tr></thead><tbody></tbody></table></div>`
+        el.innerHTML = `<div class="timetable-header"><strong>${escapeHtml(meta.tableName || '课表')}</strong><div class="timetable-week-controls"><div class="timetable-week-line"><button class="timetable-week-prev" type="button" aria-label="上一周">&#8592;</button><label>第 <select class="timetable-week" aria-label="选择周次">${Array.from({ length: maxWeek }, (_, index) => `<option value="${index + 1}">${index + 1}</option>`).join('')}</select> 周</label><button class="timetable-week-next" type="button" aria-label="下一周">&#8594;</button></div><span class="timetable-current-week" hidden>当前周</span></div></div><div class="timetable-live" aria-live="polite"><b class="timetable-live-status">正在加载</b><span class="timetable-live-next"></span></div><div class="timetable-scroll"><table><colgroup><col class="timetable-period-column">${days.map(() => '<col>').join('')}</colgroup><thead></thead><tbody></tbody></table></div>`
         const tableBody = el.querySelector('tbody')
         const select = el.querySelector('.timetable-week')
         const previous = el.querySelector('.timetable-week-prev')
@@ -31,6 +31,16 @@
         const renderTable = week => {
           const occupiedUntil = new Map()
           let body = ''
+          // 构建带日期的表头
+          const weekOffset = (week - 1) * 7
+          const dayOffset = { 7: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6 }
+          const headerCells = days.map(day => {
+            const date = new Date(startDate.getTime() + (weekOffset + dayOffset[day]) * 86400000)
+            const month = date.getMonth() + 1
+            const dayNum = date.getDate()
+            return `<th>${labels[day]}<small>${month}月${dayNum}日</small></th>`
+          }).join('')
+          el.querySelector('thead').innerHTML = `<tr><th>节次</th>${headerCells}</tr>`
           nodes.forEach((node, nodeIndex) => {
             body += `<tr><th>${node.node}<small>${escapeHtml(node.startTime)}<br>${escapeHtml(node.endTime)}</small></th>`
             days.forEach(day => {
