@@ -56,11 +56,31 @@
           const day = now.getDay() || 7
           const week = currentWeek()
           const minute = now.getHours() * 60 + now.getMinutes()
-          const today = arrangements.filter(item => item.day === day && week >= (item.startWeek || 1) && week <= (item.endWeek || maxWeek)).map(item => { const course = courseMap.get(item.id) || {}; const start = parseTime(nodeTimes.find(time => time.node === item.startNode)?.startTime); const endNode = Math.min(item.startNode + (item.step || 1) - 1, meta.nodes); const end = parseTime(nodeTimes.find(time => time.node === endNode)?.endTime); return { start, end, name: course.courseName || `课程 #${item.id}`, room: item.room || '未填写' } }).filter(item => item.start !== null && item.end !== null).sort((a, b) => a.start - b.start)
+          const today = arrangements.filter(item => item.day === day && week >= (item.startWeek || 1) && week <= (item.endWeek || maxWeek)).map(item => { const course = courseMap.get(item.id) || {}; const start = parseTime(nodeTimes.find(time => time.node === item.startNode)?.startTime); const endNode = Math.min(item.startNode + (item.step || 1) - 1, meta.nodes); const end = parseTime(nodeTimes.find(time => time.node === endNode)?.endTime); return { start, end, id: item.id, startNode: item.startNode, step: item.step || 1, name: course.courseName || `课程 #${item.id}`, room: item.room || '未填写' } }).filter(item => item.start !== null && item.end !== null).sort((a, b) => a.start - b.start)
           const active = today.find(item => minute >= item.start && minute < item.end)
           const upcoming = today.find(item => item.start > minute)
-          el.querySelector('.timetable-live-status').textContent = active ? '正在上课' : (day >= 6 ? '周末' : (today.length && upcoming ? '课前' : today.length ? '今日课毕' : '今日无课'))
-          el.querySelector('.timetable-live-next').textContent = active ? `${active.name}\n${active.room}\n${active.end - minute}分钟后下课` : (upcoming ? `下一节：${upcoming.name}\n${upcoming.room}\n${upcoming.start - minute}分钟后上课` : '')
+          // 检测连堂课的课间：当前时间落在同一课程连续节次之间
+          let isConsecutiveBreak = false
+          let breakMinutes = 0
+          if (active) {
+            const nodeTimeMap = new Map(nodeTimes.map(t => [t.node, { start: parseTime(t.startTime), end: parseTime(t.endTime) }]))
+            for (let n = active.startNode; n < active.startNode + active.step - 1; n++) {
+              const curEnd = nodeTimeMap.get(n)?.end
+              const nextStart = nodeTimeMap.get(n + 1)?.start
+              if (curEnd !== null && nextStart !== null && minute >= curEnd && minute < nextStart) {
+                isConsecutiveBreak = true
+                breakMinutes = nextStart - minute
+                break
+              }
+            }
+          }
+          if (isConsecutiveBreak) {
+            el.querySelector('.timetable-live-status').textContent = '课间'
+            el.querySelector('.timetable-live-next').textContent = `${active.name}\n${active.room}\n${breakMinutes}分钟后继续上课`
+          } else {
+            el.querySelector('.timetable-live-status').textContent = active ? '正在上课' : (day >= 6 ? '周末' : (today.length && upcoming ? '课前' : today.length ? '今日课毕' : '今日无课'))
+            el.querySelector('.timetable-live-next').textContent = active ? `${active.name}\n${active.room}\n${active.end - minute}分钟后下课` : (upcoming ? `下一节：${upcoming.name}\n${upcoming.room}\n${upcoming.start - minute}分钟后上课` : '')
+          }
           el.querySelectorAll('.timetable-course').forEach(card => card.classList.remove('is-current'))
           el.querySelectorAll('td.is-current').forEach(cell => {
             cell.classList.remove('is-current')
