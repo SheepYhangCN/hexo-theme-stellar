@@ -702,6 +702,8 @@ plugins:
     css: https://unpkg.com/heti@0.9/umd/heti.min.css
     js: https://unpkg.com/heti@0.9/umd/heti-addon.min.js
 
+  ba_click_fx:
+    enable: true
 
 
 style:
