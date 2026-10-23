@@ -45,7 +45,7 @@
   opacity: 0.4
 
 .timetable-period-column
-  width: 3.25rem
+  width: 2.4rem
 
 .timetable-live
   display: flex
@@ -76,27 +76,46 @@
 .timetable-scroll
   overflow-x: auto
 
+// table:not([class]) 的全局样式会把它变成 display:block，必须显式改回 table，table-layout:fixed 才生效
+// 注意：全局 td/th 规则的选择器特异性为 (0,1,2)，这里的覆盖也必须带上 table 才能生效
 .timetable table
+  display: table
   width: 100%
-  min-width: 680px
+  min-width: 0
+  margin: 0
   border-collapse: separate
   border-spacing: 0
   table-layout: fixed
-  font-size: 0.85rem
+  font-size: 0.75rem
 
-.timetable th,
-.timetable td
+.timetable table th,
+.timetable table td
   border: 1px solid var(--block-border)
-  padding: 0.45rem
+  padding: 0.2rem 0.1rem
+  line-height: 1.3
   vertical-align: top
+
+.timetable table th
+  white-space: normal
+  word-break: break-word
+  overflow-wrap: anywhere
+
+// 全局 table 规则禁止换行，这里需要按列宽自动折行
+.timetable tbody tr,
+.timetable table .timetable-course,
+.timetable table .timetable-course *
+  white-space: normal
+  word-break: break-word
+  overflow-wrap: anywhere
 
 .timetable thead th
   background: var(--block-background)
+  padding: 0.3rem 0.1rem
   text-align: center
 
 .timetable tbody > tr > th
-  width: 3.25rem
-  min-width: 3.25rem
+  width: 2.4rem
+  min-width: 0
   padding-left: 0
   padding-right: 0
   text-align: center
@@ -104,13 +123,14 @@
 
 .timetable th small
   display: block
-  margin-top: 0.25rem
+  margin-top: 0.15rem
   color: var(--text-p3)
-  font-size: 0.7rem
+  font-size: 0.62rem
   font-weight: 400
 
-.timetable td
-  height: 4rem
+.timetable table td
+  height: 3.4rem
+  padding: 0
 
 .timetable table:not([class]) tbody tr:hover
   background: transparent
@@ -120,25 +140,28 @@
 
 .timetable-course
   border-left: 0
-  border-radius: 2px
+  border-radius: 0
   background: var(--block-background)
   box-sizing: border-box
-  min-height: 100%
-  padding: 0.8rem 0.45rem 0.35rem
-  margin: -0.45rem -0.45rem -0.45rem
+  min-height: 3.4rem
+  padding: 0.3rem 0.15rem 0.3rem 0.4rem
   position: relative
+
+// 课程卡撑满单元格（含 rowspan），竖条随之延伸，不会串到下方格子
+.timetable table td > .timetable-course:only-child
+  height: 100%
 
 .timetable-course::before
   content: ''
   position: absolute
-  top: 0.5rem
-  bottom: -0.5rem
+  top: 0
+  bottom: 0
   left: 0
   width: 3px
   border-radius: 2px
   background: var(--course-color)
 
-.timetable td.is-current
+.timetable table td.is-current
   border: 1px solid var(--course-color)
   position: relative
   z-index: 1
@@ -149,12 +172,40 @@
 
 .timetable-course b
   color: var(--text-p1)
-  line-height: 1.35
+  font-size: 0.75rem
+  line-height: 1.3
 
 .timetable-course small
   color: var(--text-p2)
-  font-size: 0.72rem
-  line-height: 1.4
+  font-size: 0.64rem
+  line-height: 1.3
 
 .timetable-course[hidden]
   display: none
+
+// 窄屏下压缩列宽与字号，保证 7 天 + 节次列仍能完整显示且不出现横向滚动
+@media screen and (max-width: $device-mobile-max)
+  .timetable table
+    font-size: 0.65rem
+
+  .timetable-period-column,
+  .timetable tbody > tr > th
+    width: 1.9rem
+
+  .timetable table th,
+  .timetable table td
+    padding: 0.15rem 0.05rem
+
+  .timetable table td
+    height: 3rem
+
+  .timetable-course
+    min-height: 3rem
+    padding: 0.25rem 0.1rem 0.25rem 0.3rem
+
+  .timetable-course b
+    font-size: 0.68rem
+
+  .timetable-course small,
+  .timetable th small
+    font-size: 0.58rem
